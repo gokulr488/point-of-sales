@@ -12,6 +12,39 @@ repositories {
 	mavenCentral()
 }
 
+
+def  serviceName = 'Pos'
+def serviceVersion = '1.0'
+
+     
+  
+     task copyArtifact(type: Copy) {			
+  			from "$buildDir/libs"
+  			into "release/${serviceName}${serviceVersion}/"  			
+		}	
+	task copyDependencies(type: Copy) {				
+  			from configurations.default
+  			into "release/${serviceName}${serviceVersion}/lib"  			
+  			dependsOn copyArtifact
+		}
+	task copyResource(type: Copy) {  					
+  			from sourceSets.main.resources
+  			into "release/${serviceName}${serviceVersion}"			
+  			dependsOn copyDependencies
+		}
+	task releaseService(type: Zip,group: 'build', description: 'Releasing Service') {
+    archiveName = "${serviceName}_${serviceVersion}.zip"
+    destinationDir = file("release/")
+    from "release/${serviceName}${serviceVersion}"
+    dependsOn copyResource
+}	
+     
+     jar {   	
+    	baseName "${serviceName}"    
+	}
+
+
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
